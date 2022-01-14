@@ -25,19 +25,17 @@ var interServerRequestHandlerRegister = function(req, res){
         if(req.method == 'POST'){
             if(path == '/register'){
                 var infos = {
-                    port:"",
-                    user:"",
-                    host:""
+                    name:"",
+                    host:"",
+                    port:""
                 };
                 res.writeHead(200, {'Content-type': 'application/json'});
                 req.on('data', function(data){
                     infos = data;
                 });
                 req.on('end', function(){
-                    console.log(usersList)
-                    //usersList[0] = JSON.stringify(usersList[0])
                     usersList.push(infos);
-                    res.end(usersList.toString());
+                    res.end(["Utilisateur connecté", usersList].toString());
                 });  
             }
             
