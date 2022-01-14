@@ -50,8 +50,9 @@ var clientRequestHandler = function(req, res){
                         usersList = data.toString();
                     });
                     response.on('end', function(){
-                        res.writeHead(200, {'Content-type': 'application/json'});
-                        res.end(usersList);
+                        usersList.length > 1 ? res.writeHead(200, {'Content-type': 'application/json'}) : res.writeHead(500, {'Content-type': 'application/json'});
+                        
+                        res.end(usersList);                      
                     });
                 });
                 request.on("error", function(e){

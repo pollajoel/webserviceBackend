@@ -34,11 +34,18 @@ var interServerRequestHandlerRegister = function(req, res){
                     infos = data;
                 });
                 req.on('end', function(){
-                    usersList.push(infos);
-                    res.end(["Utilisateur connecté", usersList].toString());
+                    let isUserExist = usersList.some(user => user.toString() == infos.toString());
+                    if(!isUserExist){
+                        usersList.push(infos);                    
+                    }
+
+                    isUserExist ? res.end("cet utilisateur existe déjà dans le registre") : res.end(["Utilisateur connecté", usersList].toString());
                 });  
-            }
-            
+            }else if(path == '/logout'){
+                // TODO
+            }else{
+                // TODO
+            }           
         }else{
             res.writeHead(404, {'Content-type': 'application/json'});
             res.end('{message : "page not found"}');
