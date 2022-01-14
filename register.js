@@ -42,7 +42,26 @@ var interServerRequestHandlerRegister = function(req, res){
                     isUserExist ? res.end("cet utilisateur existe déjà dans le registre") : res.end(["Utilisateur connecté", usersList].toString());
                 });  
             }else if(path == '/logout'){
-                // TODO
+                var infos = {
+                    name:"",
+                    host:"",
+                    port:""
+                };
+                res.writeHead(200, {'Content-type': 'application/json'});
+                req.on('data', function(data){
+                    infos = data;
+                });
+                req.on('end', function(){
+                    let user = usersList.find(user => user.toString() == infos.toString());
+                    let userDelete = false;
+                    if(user){
+                        let indexOfUserDelete = usersList.indexOf(user);
+                        usersList.splice(indexOfUserDelete, 2);
+                        userDelete = true;                    
+                    }
+
+                    userDelete ? res.end([`L'utilisateur suivant a bien déconnecté`, user].toString()) : res.end("cet utilisateur n'est pas encore connecté");
+                });  
             }else{
                 // TODO
             }           

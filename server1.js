@@ -50,7 +50,8 @@ var clientRequestHandler = function(req, res){
                         usersList = data.toString();
                     });
                     response.on('end', function(){
-                        usersList.length > 1 ? res.writeHead(200, {'Content-type': 'application/json'}) : res.writeHead(500, {'Content-type': 'application/json'});
+                        let arrayUsers = usersList.split(',');
+                        arrayUsers.length > 1 ? res.writeHead(200, {'Content-type': 'application/json'}) : res.writeHead(500, {'Content-type': 'application/json'});
                         
                         res.end(usersList);                      
                     });
@@ -62,9 +63,6 @@ var clientRequestHandler = function(req, res){
                 });
                 req.pipe(request); 
             }
-            if(path == '/connectuser'){
-
-            }
             // if(path.match(/\/sendmessage/\/([a-z A-Z 0-9]+)/){
 
             // }
@@ -72,7 +70,36 @@ var clientRequestHandler = function(req, res){
 
             }
             if(path == '/logout'){
-
+                var options = {
+                    port : portRegisterServer,
+                    hostname : host2,
+                    host : host2 + ':' + portRegisterServer,
+                    path : path,
+                    method : req.method
+                }
+                
+                var request = http.request(options, function(response){
+                    response.on("error", function(e){
+                        console.log(e);
+                        res.writeHead(500, {'Content-type': 'application/json'});
+                        res.end(e.toString());
+                    });
+                    response.on("data", function(data){
+                        usersList = data.toString();
+                    });
+                    response.on('end', function(){
+                        let arrayUsers = usersList.split(',');
+                        arrayUsers.length > 1 ? res.writeHead(200, {'Content-type': 'application/json'}) : res.writeHead(500, {'Content-type': 'application/json'});
+                        
+                        res.end(usersList);                      
+                    });
+                });
+                request.on("error", function(e){
+                    console.log(e);
+                    res.writeHead(500, {'Content-type': 'application/json'});
+                    res.end(e.toString());
+                });
+                req.pipe(request); 
             }
            
             // var options = {
@@ -133,26 +160,6 @@ var interServerRequestHandler = function(req, res){
             res.end('{message : "page not found"}');
         }
     }
-}
-
-function arrayBufferToString(buffer){
-
-    var bufView = new Uint16Array(buffer);
-    var length = bufView.length;
-    var result = '';
-    var addition = Math.pow(2,16)-1;
-
-    for(var i = 0;i<length;i+=addition){
-
-        if(i + addition > length){
-            addition = length - i;
-        }
-        result += String.fromCharCode.apply(null, bufView.subarray(i,i+addition));
-    }
-
-    console.log("fonc => "+ result.toString() )
-    return result;
-
 }
 
 var clientServer = http.createServer(clientRequestHandler);
