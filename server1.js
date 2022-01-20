@@ -47,7 +47,6 @@ var clientRequestHandler = function(req, res){
                 });
 
                 req.pipe(request);
-
             }else if(!messages[path]){
                 res.end(JSON.stringify([]));
             }else{
@@ -57,15 +56,12 @@ var clientRequestHandler = function(req, res){
             }    
         }else if(req.method == 'POST'){
             if( path.match(/\/chat\/([a-z A-Z 0-9]+)/)){
-
                 const pathInput = path.match(/\/chat\/([a-z A-Z 0-9]+)/).input;
-                const To = pathInput.split("/")[2];
-                            
+                const To = pathInput.split("/")[2];                           
                 if( !req.headers.from ){
                     res.writeHead(500, {'Content-type': 'application/json'});
                     res.end(`{"message":"erreur parametre 'from' requis"}`);
-                }else{
-                   
+                }else{                  
                     var options = {
                             port : portInterServer1,
                             hostname : host2,
@@ -167,42 +163,14 @@ var clientRequestHandler = function(req, res){
                     res.end(e.toString());
                 });
                 req.pipe(request); 
-            }
-           
-            // var options = {
-            //     port : portRegisterServer,
-            //     hostname : host2,
-            //     host : host2 + ':' + portInterServer2,
-            //     path : path,
-            //     method : req.method
-            // };
-            // var request = http.request(options, function(response){
-            //     var body = '';
-            //     response.on("error", function(e){
-            //         console.log(e);
-            //         res.writeHead(500, {'Content-type': 'application/json'});
-            //         res.end(e);
-            //     });
-            //     response.on("data", function(data){
-            //         body += data.toString();
-            //     });
-            //     response.on('end', function(){
-            //         res.writeHead(200, {'Content-type': 'application/json'});
-            //         res.end(body);
-            //     });
-            // });
-            // request.on("error", function(e){
-            //     console.log(e);
-            //     res.writeHead(500, {'Content-type': 'application/json'});
-            //     res.end(e);
-            // });
-            // req.pipe(request); 
+            } 
         }else{
             res.writeHead(404, {'Content-type': 'application/json'});
             res.end('{message : "page not found"}');
         }
     }
 }
+
 var interServerRequestHandler = function(req, res){
     var path = req.url.split('?')[0];
     if(!path || path =='/'){
