@@ -23,6 +23,7 @@ var interServerRequestHandlerRegister = function(req, res){
         res.end('{message : "page not found"}');
     }else{
         if(req.method == 'POST'){
+            
             if(path == '/register'){
                 var infos = {
                     name:"",
@@ -31,15 +32,20 @@ var interServerRequestHandlerRegister = function(req, res){
                 };
                 res.writeHead(200, {'Content-type': 'application/json'});
                 req.on('data', function(data){
-                    infos = data;
+                    infos = data.toString();
                 });
                 req.on('end', function(){
-                    let isUserExist = usersList.some(user => user.toString() == infos.toString());
-                    if(!isUserExist){
-                        usersList.push(infos);                    
+                    let UserToRegister = JSON.parse(infos);
+                    if(UserToRegister.port && UserToRegister.host && UserToRegister.name){
+                        let isPresent = usersList.find( user => (user.host == UserToRegister.host && user.port == UserToRegister.port) || user.name == UserToRegister.name)
+                        if(!isPresent){
+                            usersList.push(JSON.parse(infos));                    
+                        }
+                        let data = JSON.stringify(usersList);
+                        isPresent ? res.end(`{"message":"cet utilisateur existe déjà dans le registre"}`) : res.end(`{"message":"Utilisateur connecté", "users":${data}}`.toString());
+                    }else{
+                        res.end(`{"message":"wrong parameter"}`)
                     }
-
-                    isUserExist ? res.end("cet utilisateur existe déjà dans le registre") : res.end(["Utilisateur connecté", usersList].toString());
                 });  
             }else if(path == '/logout'){
                 var infos = {
@@ -49,23 +55,37 @@ var interServerRequestHandlerRegister = function(req, res){
                 };
                 res.writeHead(200, {'Content-type': 'application/json'});
                 req.on('data', function(data){
-                    infos = data;
+                    infos = data.toString();
                 });
                 req.on('end', function(){
-                    let user = usersList.find(user => user.toString() == infos.toString());
+                    let UserLogout = JSON.parse(infos);
                     let userDelete = false;
-                    if(user){
-                        let indexOfUserDelete = usersList.indexOf(user);
-                        usersList.splice(indexOfUserDelete, 2);
-                        userDelete = true;                    
+                    if(UserLogout.port && UserLogout.host && UserLogout.name){
+                        let user = usersList.find(x => x.name == UserLogout.name); 
+                        if(user){
+                            let indexOfUserDelete = usersList.indexOf(user);
+                            usersList.splice(indexOfUserDelete, 1);
+                            userDelete = true;                 
+                        }                       
                     }
+                    let data = JSON.stringify(UserLogout);
 
-                    userDelete ? res.end([`L'utilisateur suivant a bien déconnecté`, user].toString()) : res.end("cet utilisateur n'est pas encore connecté");
+                    userDelete ? res.end(`{"message":"L'utilisateur suivant a bien déconnecté", "user":${data}}`.toString()) : res.end(`{"message":"cet utilisateur n'est pas encore connecté"}`);
                 });  
             }else{
                 // TODO
             }           
-        }else{
+        }else if(req.method == 'GET'){            
+            if(path == '/users'){
+                let data = JSON.stringify(usersList);
+                res.writeHead(200, {'Content-type': 'application/json'});
+                res.end(`{"data":${data}}`.toString());
+            }else{
+                res.writeHead(404, {'Content-type': 'application/json'});
+                res.end('{message : "page not found"}');
+            }
+        }
+        else{
             res.writeHead(404, {'Content-type': 'application/json'});
             res.end('{message : "page not found"}');
         }
