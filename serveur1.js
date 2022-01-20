@@ -32,6 +32,7 @@ var clientRequestHandler = function(req, res){
                 res.writeHead(400, {'Content-type': 'application/json'});
                 res.end('{message : "error"}');
             }
+
             if( path.match(/\/chat\/([a-z A-Z 0-9]+)/)){
                 const pathInput = path.match(/\/chat\/([a-z A-Z 0-9]+)/).input;
                 const To = pathInput.split("/")[2];     
@@ -156,7 +157,6 @@ var clientRequestHandler = function(req, res){
                         val += data.toString();
                     });
                     response.on('end', function(){
-                        console.log( val )
                         res.end(val);
                     })
                 });
