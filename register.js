@@ -1,19 +1,10 @@
 var http = require('http');
 var url = require('url');
 
-var portInterServer1 = 8080;
-var portInterServer2 = 8081;
 var portRegisterServer = 8082;
-
-var portClient1 = 8000;
-var portClient2 = 8001;
-
-var host1 = "localhost";
-var host2 = "localhost";
-var hostRegister = "localhost";
-
-var messages = {};
 var usersList = [];
+const portInterServer1 = 8000;
+const host = "localhost";
 const TimeTorestart = 30000;
 
 
@@ -94,6 +85,43 @@ var interServerRequestHandlerRegister = function(req, res){
 }
 
 
+function request() {
+    if( usersList ){
+        usersList.map(user=>{
+            let options = {
+                hostname: host,
+                host:  host+":"+portInterServer1,
+                port : portInterServer1,
+                method : "POST",
+                path: "/ping",
+                headers:{
+                    host:user.host,
+                    port:user.port
+                }
+            }
+            var req = http.request(options, function(res){
+                var data = ""
+                res.on('data', function(chunk){
+                    data += chunk;
+                });
+                res.on('end', function(){
+                    if( res.statusCode=="500"){
+                        let userdata = usersList.find(userTofind => userTofind.name == user.name);
+                        if(userdata){
+                            let indexOfUserDelete = usersList.indexOf(userdata);
+                            usersList.splice(indexOfUserDelete, 1);                 
+                        }
+                    }
+                })
+            });
+            req.on("error", function(e){
+                console.log( e )
+                console.log( "An error occur...." );
+            });
+            req.end(JSON.stringify(usersList));
+        });
+    }
+}
+setInterval(request, TimeTorestart);
 var registerServer = http.createServer(interServerRequestHandlerRegister);
-
 registerServer.listen(portRegisterServer);
