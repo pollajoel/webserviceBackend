@@ -130,6 +130,36 @@ var clientRequestHandler = function(req, res){
                 req.pipe(request); 
             }
             // cas d'un ping de la part du serveur de registre
+
+            if(path == '/ping'){
+                var options = {
+                    method: req.method,
+                    port : req.headers.port,
+                    hostname :req.headers.host,
+                    host : req.headers.host + ':' + req.headers.port,
+                    path : path,
+                }
+                var request = http.request(options, function(response){
+                    var val =""
+                    response.on("error", function(e){
+                        console.log(e);
+                        res.writeHead(500, {'Content-type': 'application/json'});
+                        res.end(e.toString());
+                    });
+                    response.on("data", function(data){
+                        val += data.toString();
+                    });
+                    response.on('end', function(){
+                        res.end(val);
+                    })
+                });
+                request.on("error", function(e){
+                    console.log(e);
+                    res.writeHead(500, {'Content-type': 'application/json'});
+                    res.end(e.toString());
+                });
+                req.pipe(request); 
+            }
     
             if(path == '/logout'){
                 var options = {
