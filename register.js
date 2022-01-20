@@ -14,6 +14,7 @@ var hostRegister = "localhost";
 
 var messages = {};
 var usersList = [];
+const TimeTorestart = 30000;
 
 
 var interServerRequestHandlerRegister = function(req, res){
@@ -91,6 +92,7 @@ var interServerRequestHandlerRegister = function(req, res){
         }
     }
 }
+
 
 var registerServer = http.createServer(interServerRequestHandlerRegister);
 

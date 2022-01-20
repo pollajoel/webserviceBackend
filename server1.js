@@ -130,7 +130,6 @@ var clientRequestHandler = function(req, res){
                 req.pipe(request); 
             }
             // cas d'un ping de la part du serveur de registre
-            
     
             if(path == '/logout'){
                 var options = {
