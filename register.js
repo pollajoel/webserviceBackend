@@ -27,7 +27,6 @@ var interServerRequestHandlerRegister = function(req, res){
                     infos = data.toString();
                 });
                 req.on('end', function(){
-
                         let UserToRegister = JSON.parse(infos);
                         if(UserToRegister.port!==undefined && !UserToRegister.host!==undefined && UserToRegister.name!=undefined)
                             {
@@ -40,7 +39,6 @@ var interServerRequestHandlerRegister = function(req, res){
                             }else{
                                 res.end(`{"message":"wrong parameter"}`)
                             }
-
                     });  
 
             }else if(path == '/logout'){
@@ -72,7 +70,6 @@ var interServerRequestHandlerRegister = function(req, res){
         }
     }
 }
-
 
 function request() {
     if( usersList ){
