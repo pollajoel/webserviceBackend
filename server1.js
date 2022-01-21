@@ -8,7 +8,7 @@ var portRegisterServer = 8082;
 var portClient1 = 8000;
 var portClient2 = 8001;
 
-var host1 = "localhost";
+var host = "localhost";
 var host2 = "localhost";
 var hostRegister = "localhost";
 
@@ -65,8 +65,11 @@ var clientRequestHandler = function(req, res){
                 if( !req.headers.from ){
                     res.writeHead(500, {'Content-type': 'application/json'});
                     res.end(`{"message":"erreur parametre 'from' requis"}`);
-                }else{                  
-                    var options = {
+                }else{        
+                    let emetteur = usersList.find(x => x.name == req.headers.from);          
+                    let destinataire = usersList.find(x => x.name == To);
+                    if(emetteur && destinataire){
+                        var options = {
                             port : portInterServer1,
                             hostname : host2,
                             host : host2 + ':' + portInterServer1,
@@ -98,6 +101,19 @@ var clientRequestHandler = function(req, res){
                             res.end(e);
                         });
                         req.pipe(request);
+                    }else if(!emetteur){
+                        request.on("error", function(e){
+                            //console.log(e);
+                            res.writeHead(500, {'Content-type': 'application/json'});
+                            res.end(`{"message":"Veuillez vous connecter au serveur"}`);
+                        });
+                    }else{
+                        request.on("error", function(e){
+                            //console.log(e);
+                            res.writeHead(500, {'Content-type': 'application/json'});
+                            res.end(`{"message":"${To} n'est pas connecté"}`);
+                        });
+                    }                         
                 }   
             }
 
@@ -133,7 +149,6 @@ var clientRequestHandler = function(req, res){
                 });
                 req.pipe(request); 
             }
-            // cas d'un ping de la part du serveur de registre
 
             if(path == '/ping'){
                 var options = {
@@ -146,7 +161,7 @@ var clientRequestHandler = function(req, res){
                 var request = http.request(options, function(response){
                     var val =""
                     response.on("error", function(e){
-                        console.log(e);
+                        //console.log(e);
                         res.writeHead(500, {'Content-type': 'application/json'});
                         res.end(e.toString());
                     });
@@ -158,7 +173,7 @@ var clientRequestHandler = function(req, res){
                     })
                 });
                 request.on("error", function(e){
-                    console.log(e);
+                    //console.log(e);
                     res.writeHead(500, {'Content-type': 'application/json'});
                     res.end(e.toString());
                 });
@@ -211,19 +226,18 @@ var interServerRequestHandler = function(req, res){
         res.end('{message : "page not found"}');
     }else{
         if(req.method == 'POST'){
-            console.log( req.headers )
-            var body = '';
-            res.writeHead(200, {'Content-type': 'application/json'});
-            req.on('data', function(data){
-                body += data.toString();
-            });
-            req.on('end', function(){
-                if(!messages[path]){
-                    messages[path] = [];
-                }
-                messages[path].push(body);
-                res.end('{status : "ok"}');
-            });  
+            if(path = "/ping"){
+                var body = '';
+                res.writeHead(200, {'Content-type': 'application/json'});
+                req.on('data', function(data){
+                    body += data.toString();
+                });
+                req.on('end', function(){
+                    usersList = body;
+                    console.log(usersList)
+                    res.end('{status : "ok"}');
+                }); 
+            }             
         }else{
             res.writeHead(404, {'Content-type': 'application/json'});
             res.end('{message : "page not found"}');
