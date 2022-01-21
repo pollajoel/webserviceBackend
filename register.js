@@ -84,7 +84,6 @@ var interServerRequestHandlerRegister = function(req, res){
     }
 }
 
-
 function request() {
     if( usersList ){
         usersList.map(user=>{
