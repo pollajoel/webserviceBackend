@@ -55,6 +55,10 @@ var clientRequestHandler = function(req, res){
                 delete messages[path];
             }    
         }else if(req.method == 'POST'){
+            if( path=="/chat"){
+                res.writeHead(400, {'Content-type': 'application/json'});
+                res.end('{message : "error"}');
+            }
             if( path.match(/\/chat\/([a-z A-Z 0-9]+)/)){
                 const pathInput = path.match(/\/chat\/([a-z A-Z 0-9]+)/).input;
                 const To = pathInput.split("/")[2];                           
