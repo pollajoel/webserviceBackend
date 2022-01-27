@@ -1,11 +1,12 @@
 var http = require('http');
 var url = require('url');
 
-var portRegisterServer = 8082;
+var portRegisterServer = 1337;
 var usersList = [];
-const portInterServer1 = 8000;
+const NumeroGroupe = parseInt( process.argv[2] );
+const portInterServer1 = 80 + NumeroGroupe;
 const host = "localhost";
-const TimeTorestart = 30000;
+const TimeTorestart = 10000;
 
 
 var interServerRequestHandlerRegister = function(req, res){
@@ -89,8 +90,8 @@ function request() {
         usersList.map(user=>{
             let options = {
                 hostname: host,
-                host:  host+":"+portInterServer1,
-                port : portInterServer1,
+                host:  host+":"+user.port,
+                port : user.port,
                 method : "POST",
                 path: "/ping",
                 headers:{
@@ -104,6 +105,8 @@ function request() {
                     data += chunk;
                 });
                 res.on('end', function(){
+                    console.log( "status code ...")
+                    console.log( res.statusCode)
                     if( res.statusCode=="500"){
                         let userdata = usersList.find(userTofind => userTofind.name == user.name);
                         if(userdata){
@@ -114,9 +117,15 @@ function request() {
                 })
             });
             req.on("error", function(e){
-                console.log( e )
-                console.log( "An error occur...." );
+                //console.log( e )
+                //console.log( "An error occur...." );
+                let userdata = usersList.find(userTofind => userTofind.name == user.name);
+                        if(userdata){
+                            let indexOfUserDelete = usersList.indexOf(userdata);
+                            usersList.splice(indexOfUserDelete, 1);                 
+                        }
             });
+            console.log( JSON.stringify(usersList) )
             req.end(JSON.stringify(usersList));
         });
     }

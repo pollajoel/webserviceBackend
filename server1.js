@@ -1,18 +1,15 @@
 var http = require('http');
 var url = require('url');
 
-var portInterServer1 = 8080;
-var portInterServer2 = 8081;
-var portRegisterServer = 8082;
 
-var portClient1 = 8000;
-var portClient2 = 8001;
-
-var host = "localhost";
+const NumeroGroupe = parseInt( process.argv[2] );
+var portRegisterServer = 1337;
+var portInterServer1 = 8000 + NumeroGroupe;
+var portClient1 = 80 + NumeroGroupe; 
 var host2 = "localhost";
-var hostRegister = "localhost";
 
-var messages = {};
+
+var messages = [];
 var usersList = [];
 
 var clientRequestHandler = function(req, res){
@@ -45,7 +42,6 @@ var clientRequestHandler = function(req, res){
                         res.end(usersList);
                     });
                 });
-
                 req.pipe(request);
             }else if(!messages[path]){
                 res.end(JSON.stringify([]));
@@ -61,18 +57,17 @@ var clientRequestHandler = function(req, res){
             }
             if( path.match(/\/chat\/([a-z A-Z 0-9]+)/)){
                 const pathInput = path.match(/\/chat\/([a-z A-Z 0-9]+)/).input;
-                const To = pathInput.split("/")[2];                           
+                const To = pathInput.split("/")[2];     
+                console.log( path.match(/\/chat\/([a-z A-Z 0-9]+)/)  );
+
                 if( !req.headers.from ){
                     res.writeHead(500, {'Content-type': 'application/json'});
                     res.end(`{"message":"erreur parametre 'from' requis"}`);
                 }else{        
-                    let emetteur = usersList.find(x => x.name == req.headers.from);          
-                    let destinataire = usersList.find(x => x.name == To);
-                    if(emetteur && destinataire){
                         var options = {
-                            port : portInterServer1,
+                            port : portClient1,
                             hostname : host2,
-                            host : host2 + ':' + portInterServer1,
+                            //host : host2 + ':' + portInterServer1,
                             path : path,
                             method : req.method,
                             headers:{
@@ -80,6 +75,9 @@ var clientRequestHandler = function(req, res){
                                 "To":To
                             }
                         };
+
+                        console.log(JSON.parse(usersList) );
+
                         var request = http.request(options, function(response){
                             var body = '';
                             response.on("error", function(e){
@@ -101,19 +99,13 @@ var clientRequestHandler = function(req, res){
                             res.end(e);
                         });
                         req.pipe(request);
-                    }else if(!emetteur){
+                        
                         request.on("error", function(e){
                             //console.log(e);
                             res.writeHead(500, {'Content-type': 'application/json'});
-                            res.end(`{"message":"Veuillez vous connecter au serveur"}`);
+                            res.end(`{"message":"error.."}`);
                         });
-                    }else{
-                        request.on("error", function(e){
-                            //console.log(e);
-                            res.writeHead(500, {'Content-type': 'application/json'});
-                            res.end(`{"message":"${To} n'est pas connecté"}`);
-                        });
-                    }                         
+                                         
                 }   
             }
 
@@ -156,28 +148,25 @@ var clientRequestHandler = function(req, res){
                     port : req.headers.port,
                     hostname :req.headers.host,
                     host : req.headers.host + ':' + req.headers.port,
-                    path : path,
+                    path : path
                 }
-                var request = http.request(options, function(response){
+               
+                    
                     var val =""
-                    response.on("error", function(e){
+                    req.on("error", function(e){
                         //console.log(e);
                         res.writeHead(500, {'Content-type': 'application/json'});
                         res.end(e.toString());
                     });
-                    response.on("data", function(data){
+                    req.on("data", function(data){
                         val += data.toString();
                     });
-                    response.on('end', function(){
+                    req.on('end', function(){
                         res.end(val);
+                        console.log( val )
+                        console.log("PING.....")
                     })
-                });
-                request.on("error", function(e){
-                    //console.log(e);
-                    res.writeHead(500, {'Content-type': 'application/json'});
-                    res.end(e.toString());
-                });
-                req.pipe(request); 
+                
             }
     
             if(path == '/logout'){
@@ -201,7 +190,6 @@ var clientRequestHandler = function(req, res){
                     response.on('end', function(){
                         let arrayUsers = usersList.split(',');
                         arrayUsers.length > 1 ? res.writeHead(200, {'Content-type': 'application/json'}) : res.writeHead(500, {'Content-type': 'application/json'});
-                        
                         res.end(usersList);                      
                     });
                 });
@@ -226,18 +214,40 @@ var interServerRequestHandler = function(req, res){
         res.end('{message : "page not found"}');
     }else{
         if(req.method == 'POST'){
-            if(path = "/ping"){
+            if(path == "/ping"){
                 var body = '';
                 res.writeHead(200, {'Content-type': 'application/json'});
                 req.on('data', function(data){
                     body += data.toString();
                 });
                 req.on('end', function(){
-                    usersList = body;
-                    console.log(usersList)
-                    res.end('{status : "ok"}');
+                    res.end('{status : "ok...."}');
+                    let  data = JSON.parse( body );
+                    console.log( data )
+
                 }); 
-            }             
+
+
+            }    
+            if( path.match(/\/chat\/([a-z A-Z 0-9]+)/)){
+                var body ="";
+                res.writeHead(200, {'Content-type': 'application/json'});
+                req.on('data', function(data){
+                    body += data.toString();
+                    console.log( body )
+                });
+                req.on('end', function(){
+                    messages.push({
+                        message: body,
+                        to: req.headers.To,
+                        from: req.headers.from
+                    });
+
+                    console.log( messages );
+
+                })
+
+            }       
         }else{
             res.writeHead(404, {'Content-type': 'application/json'});
             res.end('{message : "page not found"}');
