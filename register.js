@@ -125,6 +125,8 @@ function request() {
                             usersList.splice(indexOfUserDelete, 1);                 
                         }
             });
+            
+            
             console.log( JSON.stringify(usersList) )
             req.end(JSON.stringify(usersList));
         });
