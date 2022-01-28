@@ -2,7 +2,7 @@ var http = require('http');
 var url = require('url');
 
 
-const NumeroGroupe = 1;
+const NumeroGroupe = 2;
 var portRegisterServer = 1337;
 var portInterServer1 = 8000 + NumeroGroupe;
 var portClient1 = 80 + NumeroGroupe; 
@@ -78,18 +78,16 @@ var clientRequestHandler = function(req, res){
                     res.end(`{"message":"erreur parametre 'from' requis"}`);
                 }else{ 
                     
-                    if( !usersList ){
+                    if( usersList!==undefined ){
                         res.writeHead(500, {'Content-type': 'application/json'});
                         res.end('{error : "Forbidden..."}');
                     }
                     const istTo  = usersList.find( elt => elt.name == To );
                     const isFrom = usersList.find( elt => elt.name == req.headers.from );       
                     console.log( usersList );
-                    console.log("isto....")
-                    console.log( istTo)
                     var options = {
                             port : portInterServer1,
-                            hostname : istTo?.host,
+                            hostname : istTo.host,
                             host : istTo?.host + ':' + portInterServer1,
                             path : path,
                             method : req.method,
@@ -257,7 +255,7 @@ var interServerRequestHandler = function(req, res){
                     console.log( messages );
                 })
 
-                   
+                
         }else{
             res.writeHead(404, {'Content-type': 'application/json'});
             res.end('{message : "page not found"}');

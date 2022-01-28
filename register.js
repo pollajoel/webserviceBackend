@@ -3,8 +3,6 @@ var url = require('url');
 
 var portRegisterServer = 1337;
 var usersList = [];
-const NumeroGroupe = 1;
-const host = "localhost";
 const TimeTorestart = 30000;
 
 
@@ -86,10 +84,11 @@ var interServerRequestHandlerRegister = function(req, res){
 
 function request() {
     if( usersList ){
+        console.log( usersList );
         usersList.map(user=>{
             let options = {
-                hostname: host,
-                host:  host+":"+user.port,
+                hostname: user.host,
+                host:  user.host+":"+user.port,
                 port : user.port,
                 method : "POST",
                 path: "/ping",
