@@ -3,10 +3,9 @@ var url = require('url');
 
 var portRegisterServer = 1337;
 var usersList = [];
-const NumeroGroupe = parseInt( process.argv[2] );
-const portInterServer1 = 80 + NumeroGroupe;
+const NumeroGroupe = 1;
 const host = "localhost";
-const TimeTorestart = 10000;
+const TimeTorestart = 30000;
 
 
 var interServerRequestHandlerRegister = function(req, res){
@@ -126,7 +125,7 @@ function request() {
                         }
             });
             
-            
+
             console.log( JSON.stringify(usersList) )
             req.end(JSON.stringify(usersList));
         });

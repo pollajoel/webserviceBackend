@@ -2,11 +2,11 @@ var http = require('http');
 var url = require('url');
 
 
-const NumeroGroupe = parseInt( process.argv[2] );
+const NumeroGroupe = 1;
 var portRegisterServer = 1337;
 var portInterServer1 = 8000 + NumeroGroupe;
 var portClient1 = 80 + NumeroGroupe; 
-var host2 = "localhost";
+var host2 = "localhost";²
 
 
 var messages = [];
@@ -20,7 +20,8 @@ var clientRequestHandler = function(req, res){
     }else{
         if(req.method == 'GET'){
 
-            
+
+         
 
             if( path=="/chat" || path=="/chat/"){
                 res.writeHead(404, {'Content-type': 'application/json'});
@@ -64,7 +65,7 @@ var clientRequestHandler = function(req, res){
             }   
 
         }else if(req.method == 'POST'){
-            if( path=="/chat" || path=="/chat/"){
+            if( path=="/chat"){
                 res.writeHead(400, {'Content-type': 'application/json'});
                 res.end('{message : "error"}');
             }
@@ -83,7 +84,7 @@ var clientRequestHandler = function(req, res){
                     }
                     const istTo  = usersList.find( elt => elt.name == To );
                     const isFrom = usersList.find( elt => elt.name == req.headers.from );       
-                        
+                    console.log( usersList );
                     var options = {
                             port : istTo?.port,
                             hostname : istTo?.host,
