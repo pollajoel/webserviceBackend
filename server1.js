@@ -20,13 +20,14 @@ var clientRequestHandler = function(req, res){
     }else{
         if(req.method == 'GET'){
 
-            if( path=="/chat"){
+            
+
+            if( path=="/chat" || path=="/chat/"){
                 res.writeHead(404, {'Content-type': 'application/json'});
                 res.end('{message : "error"}');
-            }
-
+                console.log( path )
+            }else{
             if( path.match(/\/chat\/([a-z A-Z 0-9]+)/)){
-                
                     const pathInput = path.match(/\/chat\/([a-z A-Z 0-9]+)/).input;
                     const To = pathInput.split("/")[2].toString();
                     const from = req.headers.from;                   
@@ -35,7 +36,7 @@ var clientRequestHandler = function(req, res){
                     res.end(JSON.stringify(data));
                 
             }
-
+        }
 
             if(path == '/users'){
                 const options = {
@@ -63,7 +64,7 @@ var clientRequestHandler = function(req, res){
             }   
 
         }else if(req.method == 'POST'){
-            if( path=="/chat"){
+            if( path=="/chat" || path=="/chat/"){
                 res.writeHead(400, {'Content-type': 'application/json'});
                 res.end('{message : "error"}');
             }
